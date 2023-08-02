@@ -23,4 +23,11 @@ elemental function do_prod2(a,b,c,d) result(f)
   f = (a*b) + (c*d)
 end function do_prod2
 
+elemental function do_prod3(a,b,c,d) result(f)
+  real, intent(in) :: a, b, c, d
+  real :: f
+
+  f = a*b + (c*d)
+end function do_prod3
+
 end module fma_test

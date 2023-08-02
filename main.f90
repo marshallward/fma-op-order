@@ -13,13 +13,18 @@ print *, "FMA:", d
 
 f = do_prod(a,b,c,d)
 print *, "p1(a,b,c,d):", f
-print '(z8)', f
+print '(z16)', f
 
 f = do_prod(c,d,a,b)
 print *, "p1(c,d,a,b):", do_prod(c,d,a,b)
-print '(z8)', f
+print '(z16)', f
 
-print *, "p2(a,b,c,d):", do_prod2(a,b,c,d)
-print *, "p2(c,d,a,b):", do_prod2(c,d,a,b)
+f = do_prod2(a,b,c,d)
+print *, "p2(a,b,c,d):", f
+print '(z16)', f
+
+f = do_prod2(c,d,a,b)
+print *, "p2(c,d,a,b):", f
+print '(z16)', f
 
 end
