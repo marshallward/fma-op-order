@@ -1,7 +1,15 @@
-FC=gfortran
+#FCFLAGS=gfortran
 #FCFLAGS=-O2 -mfma -fdefault-real-8
-FCFLAGS=-O2 -mfma
-#FCFLAGS=-O0
+#FCFLAGS=-O2 -mfma
+
+FC=ifort
+#FCFLAGS=-O0 -r8
+FCFLAGS=-O2 -mfma -r8
+
+#FC=nvfortran
+#FCFLAGS=-O0 -r8
+#FCFLAGS=-O0 -Mnofma -r8
+#FCFLAGS=-O2 -Mfma -r8
 
 a.out: main.o fma.o
 	$(FC) $^
@@ -15,4 +23,4 @@ fma.s: fma.f90
 	$(FC) -c $(FCFLAGS) -S -o $@ $<
 
 clean:
-	$(RM) a.out *.o *.mod
+	$(RM) a.out *.o *.mod fma.s
