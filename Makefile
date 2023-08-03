@@ -1,10 +1,10 @@
-#FCFLAGS=gfortran
-#FCFLAGS=-O2 -mfma -fdefault-real-8
+FC=gfortran
+FCFLAGS=-O2 -mfma -fdefault-real-8
 #FCFLAGS=-O2 -mfma
 
-FC=ifort
+#FC=ifort
 #FCFLAGS=-O0 -r8
-FCFLAGS=-O2 -mfma -r8
+#FCFLAGS=-O2 -mfma -r8
 
 #FC=nvfortran
 #FCFLAGS=-O0 -r8
