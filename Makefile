@@ -1,15 +1,14 @@
 FC=gfortran
 FCFLAGS=-O2 -mfma -fdefault-real-8
-#FCFLAGS=-O2 -mfma
 
 #FC=ifort
-#FCFLAGS=-O0 -r8
-#FCFLAGS=-O2 -mfma -r8
+#FCFLAGS=-O2 -r8
+#FCFLAGS=-O0 -mfma -r8
 
 #FC=nvfortran
 #FCFLAGS=-O0 -r8
 #FCFLAGS=-O0 -Mnofma -r8
-#FCFLAGS=-O2 -Mfma -r8
+#FCFLAGS=-O0 -Mfma -r8
 
 a.out: main.o fma.o
 	$(FC) $^
