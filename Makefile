@@ -1,5 +1,6 @@
 FC=gfortran
 FCFLAGS=-O2 -mfma -fdefault-real-8
+#FCFLAGS=-O2 -mfma
 
 #FC=ifort
 #FCFLAGS=-O2 -r8
