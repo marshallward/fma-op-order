@@ -17,27 +17,108 @@ the following expression when FMAs are enabled::
 and the ways in which various compilers handle parentheses inside of such
 expressions.
 
-Currently, I have only found one compiler (GNU) which respects parentheses in
-such expressions.  The Intel and Nvidia compilers appear to aggressively use
-FMAs to compute the result, ignoring any paretheses in the expression.
+The GNU and Intel compilers appear to both respect parentheses and utilize FMAs
+when the appropriate flags are provided.  Other compilers are being
+investigated.
+
+
+Example
+-------
+
+We compute the expression above using the following values::
+
+   a = 1.0008
+   b = 1.0008
+   c = 1.0
+   d = -1.0
+   
+which is equivalent to :math:`x^2 - 1` for :math:`x = 1.0008`.  This is taken
+from the FMA section of the Nvidia CUDA documentation.  This example is
+sensitive to rounding in both traditional and FMA computation.  Another
+advantage is that it is sensitive at both single and double precision.
+
+Four functions are created to compute the following expressions::
+
+    a * b  +  c * d
+
+   (a * b) + (c * d)
+
+    a * b  + (c * d)
+
+   (a * b) +  c * d 
+
+What we expect:
+
+1. FMA, either ``a*b + (c*d)`` or ``(a*b) + c*d``
+
+2. No FMA
+
+3. FMA, only ``a*b + (c*d)``
+
+4. FMA, only ``c*d + (a*b)``
 
 
 Platforms
 ---------
 
-======== =======  =========   ======
-Compiler Version  Flags       Status
-======== =======  =========   ======
-GFortran 13.1.1   -O0 -mfma   pass
-Intel    TODO
-Nvidia   TODO
-======== =======  =========   ======
+======== ======== ====================================
+Compiler Version  Flags
+======== ======== ====================================
+GFortran 13.1.1   ``-O2 -mfma``
+Intel    2021.9.0 ``-O2 -mfma -assume protect_parens``
+Nvidia   22.7     ``-O0`` (``-Mfma`` is default)
+Cray     15.0.1   (``-O2 -fma``, failed to use FMA)
+======== ======== ====================================
+
+CPU: AMD EPYC 7662
 
 
 Results
 -------
 
-TODO
+GNU::
+
+    a*b  +  c*d :  0.0016006399999998237 (3F5A39921CF88611)
+    c*d  +  a*b :  0.0016006399999999310 (3F5A39921CF88800)
+   (a*b) + (c*d):  0.0016006399999999310 (3F5A39921CF88800)
+   (c*d) + (a*b):  0.0016006399999999310 (3F5A39921CF88800)
+    a*b  + (c*d):  0.0016006399999998237 (3F5A39921CF88611)
+    c*d  + (a*b):  0.0016006399999999310 (3F5A39921CF88800)
+   (a*b) +  c*d :  0.0016006399999999310 (3F5A39921CF88800)
+   (c*d) +  a*b :  0.0016006399999998237 (3F5A39921CF88611)
+
+
+Intel::
+
+    a*b  +  c*d :  0.0016006399999998237 (3F5A39921CF88611)
+    c*d  +  a*b :  0.0016006399999999310 (3F5A39921CF88800)
+   (a*b) + (c*d):  0.0016006399999999310 (3F5A39921CF88800)
+   (c*d) + (a*b):  0.0016006399999999310 (3F5A39921CF88800)
+    a*b  + (c*d):  0.0016006399999998237 (3F5A39921CF88611)
+    c*d  + (a*b):  0.0016006399999999310 (3F5A39921CF88800)
+   (a*b) +  c*d :  0.0016006399999999310 (3F5A39921CF88800)
+   (c*d) +  a*b :  0.0016006399999998237 (3F5A39921CF88611)
+
+GNU and Intel are in agreement.
+
+
+Nvidia::
+
+    a*b  +  c*d :  0.0016006399999999310 (3F5A39921CF88800)
+    c*d  +  a*b :  0.0016006399999998237 (3F5A39921CF88611)
+   (a*b) + (c*d):  0.0016006399999999310 (3F5A39921CF88800)
+   (c*d) + (a*b):  0.0016006399999998237 (3F5A39921CF88611)
+    a*b  + (c*d):  0.0016006399999999310 (3F5A39921CF88800)
+    c*d  + (a*b):  0.0016006399999998237 (3F5A39921CF88611)
+   (a*b) +  c*d :  0.0016006399999999310 (3F5A39921CF88800)
+   (c*d) +  a*b :  0.0016006399999998237 (3F5A39921CF88611)
+
+Nvidia results use FMA (via ``@llvm.fma.f64``) regardless of parentheses.
+
+
+Cray
+
+I have not yet been able to get this compiler to generate FMA bytecode.
 
 
 Discussion
@@ -96,7 +177,7 @@ multiplication.  But this is not the case with FMAs, which present two
 solutions::
 
    t = a * b
-   s = t1 + c * d
+   s = t + c * d
 
 ::
 
@@ -119,9 +200,8 @@ In principle, this could be resolved with parentheses; that is,::
 
    s = a*b + (c*d)
 
-should unambiguously compute ``c*d`` before applying the FMA.  However, this is
-not the case in some of the tested compilers, which appear to aggressively
-apply FMAs where possible.
+should unambiguously compute ``c*d`` before applying the FMA.  However, not all
+compilers appear to respect this.
 
 This is still under investigation.
 
