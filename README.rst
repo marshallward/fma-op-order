@@ -1,9 +1,9 @@
-===============================
-Fused multiply-add compile test
-===============================
+======================================
+Fused multiply-add Order of Operations
+======================================
 
-This is a small program which attempts to detect the usage of FMA in a simple
-mathematical operation.
+This is a small program which attempts to detect the order of operations in
+expressions containing FMAs.
 
 
 Summary
